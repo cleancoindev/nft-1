@@ -8,9 +8,10 @@ function Layout({ children }) {
     <div className="flex flex-col min-h-screen">
       <Header />
 
-      <main>
+      <main style={{
+      background: 'radial-gradient(#C220FF, #AD00FF, #660096)'}}>
         {children}
-      </main>
+      </main> 
       
       <Footer/>
     </div>

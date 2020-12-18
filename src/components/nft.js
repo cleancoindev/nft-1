@@ -7,7 +7,7 @@ import n from "./images/nft-1.png"
 
 function Creators() {
     return (
-        <section class="font-book bg-purple-700">
+        <section class="font-book">
             <div class="container px-5 py-24 mx-auto">
                 <div className="flex flex-wrap w-full mb-16 flex-col items-center text-center">
                     <h1 className="lg:w-1/2 w-full leading-relaxed text-base font-bol text-3xl text-purple-100">Featured Digital Art</h1>

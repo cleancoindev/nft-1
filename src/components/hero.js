@@ -3,17 +3,17 @@ import hero from "./images/hero.png"
 
 function Hero() {
   return (
-    <section class="font-bol">
-      <div class="container mx-auto flex flex-col px-5 py-24 justify-center items-center">
-        <div class="w-full md:w-2/3 flex flex-col mb-16 items-center text-center">
-          <h1 class="title-font sm:text-4xl text-3xl mb-4 text-purple-100">Discover and showcase your favorite digital art</h1>
-          <img class="lg:w-2/6 md:w-3/6 w-5/6 mb-10 object-cover object-center rounded" alt="hero" src={hero} />
-          <div class="flex w-full justify-center items-end mb-8">
-            <div class="relative mr-4 lg:w-full xl:w-1/2 w-2/4 md:w-full text-left">
-              <input type="text" id="hero-field" name="hero-field" placeholder="Search digital items" class="w-full bg-gray-100 rounded border border-gray-300 font-book focus:border-indigo-500 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" />
-            </div>
-            <button class="inline-flex text-white bg-pink-600 border-0 py-2 px-6 focus:outline-none hover:bg-pink-700 rounded-md text-lg">Search</button>
+    <section className="font-bol animated-gradient">
+      <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
+        <div className="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center">
+          <h1 className="sm:text-4xl text-3xl mb-4 font-bol text-black">Showtime intro</h1>
+          <p className="mb-8 leading-relaxed text-4xl font-book">Discover and showcase your favorite digital art.</p>
+          <div className="flex w-full md:justify-start justify-center items-end">
+            <button className="inline-flex text-white bg-black border-0 py-3 px-6 focus:outline-none hover:bg-gray-800 rounded font-book text-lg">Get Started</button>
           </div>
+        </div>
+        <div className="lg:max-w-xl lg:w-full md:w-1/2 w-5/6">
+          <img className="object-cover object-center rounded" alt="hero" src={hero} />
         </div>
       </div>
     </section>

@@ -26,7 +26,7 @@ const Header = () => {
     setLoading(true);
     await magic.preload;
     try {
-      await magic.auth.loginWithMagicLink({ email: email, redirectURI: 'https://tryshowtime.com/profile/' });
+      await magic.auth.loginWithMagicLink({ email: email, redirectURI: 'https://tryshowtime.netlify.app/profile/' });
       setLoading(false);
     } catch (err) {
       setLoading(false);

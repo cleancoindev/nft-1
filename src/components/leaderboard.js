@@ -1,11 +1,8 @@
 import React from "react";
-import { graphql } from 'gatsby';
-import Query from '../graph/query';
 import uni from "./images/uni.png";
 import nft from "./images/nft.png";
 import n from "./images/nft-1.png";
 import g from "./images/nft-2.png";
-import { FaInstagram, FaRegHeart, FaTwitter } from 'react-icons/fa';
 
 function Leaderboard() {
     return (

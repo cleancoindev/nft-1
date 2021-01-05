@@ -16,7 +16,7 @@ function IndexPage() {
       <NFT />
       <Leaderboard />
     </Layout>
-  );
+  ); 
 }
 
 export default IndexPage;

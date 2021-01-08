@@ -1,11 +1,11 @@
 var plugins = [{
-      plugin: require('/Users/jenil/Desktop/code/showtime-nft/node_modules/gatsby-plugin-react-helmet/gatsby-ssr'),
+      plugin: require('/Users/alexkilkka/Documents/GitHub/nft/node_modules/gatsby-plugin-react-helmet/gatsby-ssr'),
       options: {"plugins":[]},
     },{
-      plugin: require('/Users/jenil/Desktop/code/showtime-nft/node_modules/gatsby-plugin-manifest/gatsby-ssr'),
+      plugin: require('/Users/alexkilkka/Documents/GitHub/nft/node_modules/gatsby-plugin-manifest/gatsby-ssr'),
       options: {"plugins":[],"name":"Shwotime","short_name":"Showtime","start_url":"/","icon":"src/images/favicon.png","cache_busting_mode":"query","include_favicon":true,"legacy":true,"theme_color_in_head":true,"cacheDigest":"105533b1d0adf4d499594a681d4f8636"},
     },{
-      plugin: require('/Users/jenil/Desktop/code/showtime-nft/node_modules/gatsby-plugin-offline/gatsby-ssr'),
+      plugin: require('/Users/alexkilkka/Documents/GitHub/nft/node_modules/gatsby-plugin-offline/gatsby-ssr'),
       options: {"plugins":[]},
     }]
 // During bootstrap, we write requires at top of this file which looks like:

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import _ from "lodash";
 //import nft from "./images/nft.png";
 //import nft2 from "./images/nft-2.png";
 //import uni from "./images/uni.png";
@@ -6,10 +7,19 @@ import { FaHeart, FaRegHeart } from "react-icons/fa";
 import share from "./images/share.svg";
 import arrow from "./images/arrow.png";
 import backend from "../api/backend";
+import { Context as AuthContext } from "../context/AuthContext";
 
 const Featured = () => {
   const [featuredItems, setFeaturedItems] = useState([]);
+  const [featuredLikedItems, setFeaturedLikedItems] = useState([]);
 
+  const {
+    like,
+    unlike,
+    state: { mylikes, did },
+  } = useContext(AuthContext);
+
+  // Load content
   useEffect(() => {
     const getFeaturedItems = async () => {
       const response = await backend.get("/v1/featured");
@@ -21,14 +31,83 @@ const Featured = () => {
     getFeaturedItems();
   }, []);
 
+  // Augment content with my like status
+  useEffect(() => {
+    var newFeaturedLikedItems = [];
+
+    if (featuredItems.length > 0 && mylikes) {
+      _.forEach(featuredItems, function (item) {
+        item.liked = false;
+
+        _.forEach(mylikes, function (like) {
+          if (
+            item.asset_contract.address == like.contract &&
+            item.token_id == like.token_id
+          ) {
+            item.liked = true;
+          }
+        });
+
+        newFeaturedLikedItems.push(item);
+      });
+      setFeaturedLikedItems(newFeaturedLikedItems);
+    }
+  }, [featuredItems, mylikes]);
+
+  const handleLike = async ({ contract, token_id }) => {
+    like({ contract, token_id });
+
+    var newFeaturedItems = [...featuredItems];
+    _.forEach(newFeaturedItems, function (item) {
+      if (
+        item.asset_contract.address == contract &&
+        item.token_id == token_id
+      ) {
+        item.showtime.like_count = item.showtime.like_count + 1;
+      }
+    });
+    setFeaturedItems(newFeaturedItems);
+
+    await backend.post(
+      `/v1/token/${contract}/${token_id}`,
+      JSON.stringify({ action: "like" }),
+      {
+        headers: { Authorization: "Bearer " + did },
+      }
+    );
+  };
+
+  const handleUnlike = async ({ contract, token_id }) => {
+    unlike({ contract, token_id });
+
+    var newFeaturedItems = [...featuredItems];
+    _.forEach(newFeaturedItems, function (item) {
+      if (
+        item.asset_contract.address == contract &&
+        item.token_id == token_id
+      ) {
+        item.showtime.like_count = item.showtime.like_count - 1;
+      }
+    });
+    setFeaturedItems(newFeaturedItems);
+
+    await backend.post(
+      `/v1/token/${contract}/${token_id}`,
+      JSON.stringify({ action: "unlike" }),
+      {
+        headers: { Authorization: "Bearer " + did },
+      }
+    );
+  };
+
   return (
     <section className="bg-black font-book text-white">
       <div className="lg:px-32 px-5 py-20 mx-auto">
         <div className="flex flex-wrap -m-4">
-          {featuredItems.length === 0 ? (
+          {featuredLikedItems.length === 0 ? (
             <h1 className="text-xl font-bol mb-2">Loading items...</h1>
           ) : (
-            featuredItems.map((item) => {
+            featuredLikedItems.map((item) => {
               return (
                 <div key={item.id} className="p-4 md:w-1/2">
                   <div className="h-full overflow-hidden">
@@ -55,14 +134,41 @@ const Featured = () => {
                           : item.owner.address}
                       </p>
                       <div className="flex items-center flex-wrap">
-                        <button className="inline-flex text-black bg-white border-0 py-2 px-4 focus:outline-none hover:bg-gray-200 rounded text-lg font-bol">
-                          <span className="text-pink-600">
-                            <FaHeart className="h-6 w-6" />
-                          </span>{" "}
-                          <span className="text-pink-600 ml-2">
-                            {item.showtime.like_count}
-                          </span>
-                        </button>
+                        {item.liked ? (
+                          <button
+                            onClick={() =>
+                              handleUnlike({
+                                contract: item.asset_contract.address,
+                                token_id: item.token_id,
+                              })
+                            }
+                            className="inline-flex text-black bg-white border-0 py-2 px-4 focus:outline-none hover:bg-gray-200 rounded text-lg font-bol"
+                          >
+                            <span className="text-pink-600">
+                              <FaHeart className="h-6 w-6" />
+                            </span>{" "}
+                            <span className="text-pink-600 ml-2">
+                              {item.showtime.like_count}
+                            </span>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              handleLike({
+                                contract: item.asset_contract.address,
+                                token_id: item.token_id,
+                              })
+                            }
+                            className="inline-flex text-black bg-white border-0 py-2 px-4 focus:outline-none hover:bg-gray-200 rounded text-lg font-bol"
+                          >
+                            <span className="text-pink-600">
+                              <FaRegHeart className="h-6 w-6" />
+                            </span>{" "}
+                            <span className="text-pink-600 ml-2">
+                              {item.showtime.like_count}
+                            </span>
+                          </button>
+                        )}
                         <button className="inline-flex text-black bg-pink-600 border-0 py-2 px-2 ml-2 focus:outline-none hover:bg-pink-700 rounded text-lg">
                           <img
                             src={share}

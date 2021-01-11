@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import SEO from "../components/seo";
 import WalletButton from "../components/wallet";
 import { Link } from "gatsby";
@@ -9,12 +9,24 @@ import Layout from "../components/layout";
 import { FaHeart } from "react-icons/fa";
 import share from "../components/images/share.svg";
 import Cookies from "universal-cookie";
+import { Context as AuthContext } from "../context/AuthContext";
 
 function Auth() {
   const [email, setEmail] = React.useState("");
   const [showModal, setShowModal] = React.useState(false); // login modal
   const [loading, setLoading] = React.useState(false);
   const [magic, setMagic] = React.useState(null);
+
+  const {
+    attemptSigninFromCookie,
+    state: { isLoggedIn },
+  } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      attemptSigninFromCookie();
+    }
+  }, [isLoggedIn]);
 
   useEffect(() => {
     (async () => {
@@ -38,41 +50,56 @@ function Auth() {
         //redirectURI: "https://tryshowtime.netlify.app/profile/",
         redirectURI: "http://localhost:8000/profile/",
       });
-      const did = await magic.user.getIdToken(60 * 60 * 24 * 30); //setting 30 day expiration
+      const did = await magic.user.generateIdToken({
+        //setting 30 day expiration
+        lifespan: 60 * 60 * 24 * 30,
+      });
       const cookies = new Cookies();
       cookies.set("did", did, { path: "/" });
       setLoading(false);
+      setShowModal(false);
+      window.location.reload(true);
     } catch (err) {
       setLoading(false);
+      setShowModal(false);
       console.log(err);
     }
   };
 
   return (
-    <Layout>
-      <div className="bg-black text-white font-bol">
-        <SEO
-          keywords={[`showtime`, `ethereum`, `token`, `nft`]}
-          title="Sign in"
-        />
-        <div className="container mx-auto flex px-5 py-40 md:flex-row flex-col items-center">
-          <div className="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center">
-            <h1 className="title-font sm:text-4xl text-3xl mb-4">
-              Discover and
-              <br className="hidden lg:inline-block" />
-              showcase digital art.
-            </h1>
-            <h1></h1>
+    <div className="bg-black text-white font-bol">
+      <div
+        className="container mx-auto px-5 pt-20 pb-10 flex-col items-center"
+        id="auth"
+      >
+        <h1 className="text-5xl mb-4 uppercase text-center mx-auto">
+          Discover and showcase <br />
+          your favorite digital art
+        </h1>
+
+        {isLoggedIn ? (
+          <div className="flex justify-center">
+            <a
+              href="/profile/"
+              className="inline-flex text-white bg-indigo-500 border-0 py-2 px-10 focus:outline-none hover:bg-indigo-600 rounded text-md"
+              style={{
+                background: "#E45CFF",
+              }}
+            >
+              My Profile
+            </a>
+          </div>
+        ) : (
+          <>
             <div className="flex justify-center">
               <button
                 onClick={() => setShowModal(true)}
-                className="inline-flex text-white bg-indigo-500 border-0 py-3 px-10 focus:outline-none hover:bg-indigo-600 rounded text-lg"
+                className="inline-flex text-white bg-indigo-500 border-0 py-2 px-10 focus:outline-none hover:bg-indigo-600 rounded text-md"
                 style={{
-                  background:
-                    "linear-gradient(to bottom right, #9E52FF, #FF27E9)",
+                  background: "#E45CFF",
                 }}
               >
-                Continue with Email
+                Sign in / Sign up with Email
               </button>
               {showModal ? (
                 <>
@@ -133,7 +160,7 @@ function Auth() {
                 </>
               ) : null}
             </div>
-            {/*
+
             <div className="flex justify-center mt-6">
               <span className="text-white text-lg inline-flex lg:px-24">
                 or
@@ -149,60 +176,11 @@ function Auth() {
               >
                 Connect Wallet
               </button>
-              </div>*/}
-          </div>
-          <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6">
-            <div className="h-full overflow-hidden">
-              <img
-                className="lg:h-64 md:h-36 w-full object-cover object-center"
-                src={nft}
-                alt="nft"
-              />
-              <div className="mt-6 p-1">
-                <h2 className="tracking-widest text-md mb-1">LIL MIQUELA</h2>
-                <h1 className="text-xl font-bol mb-2">Rebirth of Venus</h1>
-                <p className="leading-relaxed mb-3 text-gray-200">
-                  Owned by leviathan
-                </p>
-                <div className="flex items-center flex-wrap">
-                  <button className="inline-flex text-black bg-white border-0 py-2 px-4 focus:outline-none hover:bg-gray-200 rounded text-lg font-bol">
-                    <span className="text-pink-600">
-                      <FaHeart className="h-6 w-6" />
-                    </span>{" "}
-                    <span className="text-pink-600 ml-2">233</span>
-                  </button>
-                  <button className="inline-flex text-black bg-pink-600 border-0 py-2 px-2 ml-2 focus:outline-none hover:bg-pink-700 rounded text-lg">
-                    <img
-                      src={share}
-                      alt="share-button"
-                      className="h-6 w-6 items-center flex"
-                    />
-                  </button>
-
-                  <span className="text-gray-200 mr-3 inline-flex items-center lg:ml-auto md:ml-0 ml-auto leading-none text-md pr-3 py-1 border-r-2 border-gray-200">
-                    Ξ 159
-                  </span>
-                  <span className="text-gray-200 inline-flex items-center leading-none text-md">
-                    <svg
-                      className="w-4 h-4 mr-1"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"></path>
-                    </svg>
-                    6
-                  </span>
-                </div>
-              </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
-    </Layout>
+    </div>
   );
 }
 

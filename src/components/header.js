@@ -19,35 +19,41 @@ const Header = () => {
   }, [isLoggedIn, mylikes]);
 
   return (
-    <header className="font-bol bg-black">
+    <header className="bg-black">
       <div className="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
         <a href="/" className="flex items-center text-white mb-4 md:mb-0">
-          <img src={logo} alt="logo" />
-          <span className="ml-3 text-xl">Showtime</span>
+          {/*<img src={logo} alt="logo" />*/}
+          <span className="ml-3 text-xl uppercase">Showtime</span>
         </a>
         <nav className="md:ml-auto flex flex-wrap items-center text-base justify-center">
-          {/*<a
+          <a
+            href="/#discover"
+            className="mr-5 text-white hover:text-gray-200 px-5 py-2 rounded-md"
+          >
+            Discover
+          </a>
+          <a
             href="/#leaderboard"
             className="mr-5 text-white hover:text-gray-200 px-5 py-2 rounded-md"
           >
             Top Creators
-          </a>*/}
+          </a>
         </nav>
         {isLoggedIn ? (
           <a href="/profile">
             <button
               style={{
-                background:
-                  "linear-gradient(to bottom right, #9E52FF, #FF27E9)",
+                background: "white",
               }}
               type="button"
-              className="text-white py-2 px-6 focus:outline-none bg-black hover:bg-gray-800 rounded"
+              className="
+              py-2 px-6 focus:outline-none bg-black hover:bg-gray-800 rounded"
             >
-              My Profile
+              Profile
             </button>
           </a>
         ) : (
-          <a href="/auth/">
+          <a href="/#auth">
             <button
               style={{
                 background:

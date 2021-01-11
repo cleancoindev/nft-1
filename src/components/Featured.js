@@ -16,6 +16,7 @@ const Featured = () => {
   const {
     like,
     unlike,
+    likeCountsChanged,
     state: { mylikes, did },
   } = useContext(AuthContext);
 
@@ -41,8 +42,8 @@ const Featured = () => {
 
         _.forEach(mylikes, function (like) {
           if (
-            item.asset_contract.address == like.contract &&
-            item.token_id == like.token_id
+            item.asset_contract.address === like.contract &&
+            item.token_id === like.token_id
           ) {
             item.liked = true;
           }
@@ -50,18 +51,24 @@ const Featured = () => {
 
         newFeaturedLikedItems.push(item);
       });
-      setFeaturedLikedItems(newFeaturedLikedItems);
+      setFeaturedLikedItems(newFeaturedLikedItems.slice(0, 11));
     }
   }, [featuredItems, mylikes]);
 
-  const handleLike = async ({ contract, token_id }) => {
+  const handleLike = async ({
+    contract,
+    token_id,
+    creator_address,
+    creator_name,
+    creator_img_url,
+  }) => {
     like({ contract, token_id });
 
     var newFeaturedItems = [...featuredItems];
     _.forEach(newFeaturedItems, function (item) {
       if (
-        item.asset_contract.address == contract &&
-        item.token_id == token_id
+        item.asset_contract.address === contract &&
+        item.token_id === token_id
       ) {
         item.showtime.like_count = item.showtime.like_count + 1;
       }
@@ -70,11 +77,18 @@ const Featured = () => {
 
     await backend.post(
       `/v1/token/${contract}/${token_id}`,
-      JSON.stringify({ action: "like" }),
+      JSON.stringify({
+        action: "like",
+        creator_address: creator_address,
+        creator_name: creator_name,
+        creator_img_url: creator_img_url,
+      }),
       {
         headers: { Authorization: "Bearer " + did },
       }
     );
+
+    likeCountsChanged();
   };
 
   const handleUnlike = async ({ contract, token_id }) => {
@@ -83,8 +97,8 @@ const Featured = () => {
     var newFeaturedItems = [...featuredItems];
     _.forEach(newFeaturedItems, function (item) {
       if (
-        item.asset_contract.address == contract &&
-        item.token_id == token_id
+        item.asset_contract.address === contract &&
+        item.token_id === token_id
       ) {
         item.showtime.like_count = item.showtime.like_count - 1;
       }
@@ -98,42 +112,58 @@ const Featured = () => {
         headers: { Authorization: "Bearer " + did },
       }
     );
+
+    likeCountsChanged();
   };
 
   return (
-    <section className="bg-black font-book text-white">
+    <section className="bg-black font-book text-white" id="discover">
       <div className="lg:px-32 px-5 py-20 mx-auto">
-        <div className="flex flex-wrap -m-4">
+        <h1 className="text-2xl font-medium title-font mb-4 text-white tracking-widest font-bol uppercase text-center">
+          Discover
+        </h1>
+        <div className="flex flex-wrap -m-4 ">
           {featuredLikedItems.length === 0 ? (
-            <h1 className="text-xl font-bol mb-2">Loading items...</h1>
+            <h1 className="text-xl font-bol mb-2 text-center">
+              Loading items...
+            </h1>
           ) : (
-            featuredLikedItems.map((item) => {
-              return (
-                <div key={item.id} className="p-4 md:w-1/2">
-                  <div className="h-full overflow-hidden">
-                    <img
-                      className="lg:h-64 md:h-36 w-full object-cover object-center"
-                      src={item.image_url}
-                      alt="nft"
-                    />
-                    <div className="mt-6 p-1">
-                      {item.creator ? (
-                        <h2 className="tracking-widest text-md mb-1">
-                          Created by{" "}
-                          {item.creator.user
-                            ? item.creator.user.username
-                            : item.creator.address}
+            featuredLikedItems.map((item, index) => {
+              return index === 0 ? (
+                <section
+                  key={item.id}
+                  className="bg-black text-white mx-auto sm:w-full"
+                >
+                  <div className="container px-5 py-8 mx-auto ">
+                    <div className="flex flex-wrap -mx-8 -mb-10 text-center">
+                      <div className="sm:w-full mb-6">
+                        <div className="h-96 overflow-hidden">
+                          <img
+                            alt="content"
+                            className="object-cover object-center h-full w-full"
+                            src={item.image_url}
+                          />
+                        </div>
+                        <h2 className="title-font text-3xl mt-6 mb-3 font-bol">
+                          {item.name}
                         </h2>
-                      ) : null}
-                      <h1 className="text-xl font-bol mb-2">{item.name}</h1>
 
-                      <p className="leading-relaxed mb-3 text-gray-200">
-                        Owned by{" "}
-                        {item.owner.user
-                          ? item.owner.user.username
-                          : item.owner.address}
-                      </p>
-                      <div className="flex items-center flex-wrap">
+                        {item.creator ? (
+                          <h2 className="tracking-widest text-md mb-1">
+                            Created by{" "}
+                            {item.creator.user
+                              ? item.creator.user.username
+                              : item.creator.address}
+                          </h2>
+                        ) : null}
+
+                        <p className="leading-relaxed mb-3 text-gray-200">
+                          Owned by{" "}
+                          {item.owner.user
+                            ? item.owner.user.username
+                            : item.owner.address}
+                        </p>
+
                         {item.liked ? (
                           <button
                             onClick={() =>
@@ -157,6 +187,16 @@ const Featured = () => {
                               handleLike({
                                 contract: item.asset_contract.address,
                                 token_id: item.token_id,
+                                creator_address: item.creator
+                                  ? item.creator.address
+                                  : null,
+                                creator_name:
+                                  item.creator && item.creator.user
+                                    ? item.creator.user.username
+                                    : null,
+                                creator_img_url: item.creator
+                                  ? item.creator.profile_img_url
+                                  : null,
                               })
                             }
                             className="inline-flex text-black bg-white border-0 py-2 px-4 focus:outline-none hover:bg-gray-200 rounded text-lg font-bol"
@@ -176,8 +216,76 @@ const Featured = () => {
                             className="h-6 w-6 items-center flex"
                           />
                         </button>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              ) : (
+                <div key={item.id} className="p-4 md:w-1/2">
+                  <div className="h-full overflow-hidden">
+                    <img
+                      className="lg:h-64 md:h-36 w-full object-cover object-center"
+                      src={item.image_url}
+                      alt="nft"
+                    />
+                    <div className="mt-6 p-1">
+                      <div className="float-right text-right">
+                        <div>
+                          {item.liked ? (
+                            <button
+                              onClick={() =>
+                                handleUnlike({
+                                  contract: item.asset_contract.address,
+                                  token_id: item.token_id,
+                                })
+                              }
+                              className="inline-flex text-black bg-white border-0 py-2 px-4 focus:outline-none hover:bg-gray-200 rounded text-lg font-bol"
+                            >
+                              <span className="text-pink-600">
+                                <FaHeart className="h-6 w-6" />
+                              </span>{" "}
+                              <span className="text-pink-600 ml-2">
+                                {item.showtime.like_count}
+                              </span>
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() =>
+                                handleLike({
+                                  contract: item.asset_contract.address,
+                                  token_id: item.token_id,
+                                  creator_address: item.creator
+                                    ? item.creator.address
+                                    : null,
+                                  creator_name:
+                                    item.creator && item.creator.user
+                                      ? item.creator.user.username
+                                      : null,
+                                  creator_img_url: item.creator
+                                    ? item.creator.profile_img_url
+                                    : null,
+                                })
+                              }
+                              className="inline-flex text-black bg-white border-0 py-2 px-4 focus:outline-none hover:bg-gray-200 rounded text-lg font-bol"
+                            >
+                              <span className="text-pink-600">
+                                <FaRegHeart className="h-6 w-6" />
+                              </span>{" "}
+                              <span className="text-pink-600 ml-2">
+                                {item.showtime.like_count}
+                              </span>
+                            </button>
+                          )}
+                          <button className="inline-flex text-black bg-pink-600 border-0 py-2 px-2 ml-2 focus:outline-none hover:bg-pink-700 rounded text-lg">
+                            <img
+                              src={share}
+                              alt="share-button"
+                              className="h-6 w-6 items-center flex"
+                            />
+                          </button>
+                        </div>
 
-                        <span className="text-gray-200 inline-flex items-center lg:ml-auto md:ml-0 ml-auto leading-none text-md pr-3 py-1 ">
+                        <div className=" text-gray-200 text-right lg:ml-auto md:ml-0 ml-auto leading-none text-md py-3 ">
                           {item.last_sale && item.last_sale.payment_token
                             ? "Last sale Ξ" +
                               parseFloat(
@@ -187,7 +295,8 @@ const Featured = () => {
                               parseInt(item.last_sale.payment_token.usd_price) +
                               ")"
                             : null}
-                        </span>
+                        </div>
+
                         {/*
                       <span className="text-gray-200 inline-flex items-center leading-none text-md">
                         <svg
@@ -204,6 +313,23 @@ const Featured = () => {
                         6
                       </span>*/}
                       </div>
+
+                      <h1 className="text-xl font-bol mb-2">{item.name}</h1>
+                      {item.creator ? (
+                        <h2 className="tracking-widest text-md mb-1">
+                          Created by{" "}
+                          {item.creator.user
+                            ? item.creator.user.username
+                            : "[Unnamed]"}
+                        </h2>
+                      ) : null}
+
+                      <p className="leading-relaxed mb-3 text-gray-200">
+                        Owned by{" "}
+                        {item.owner.user
+                          ? item.owner.user.username
+                          : "[Unnamed]"}
+                      </p>
                     </div>
                   </div>
                 </div>

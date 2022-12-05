@@ -8,7 +8,7 @@
     "@ethersproject/providers": "^5.0.17",
     "@magic-ext/oauth": "^0.7.0",
     "@myetherwallet/mewconnect-web-client": "^2.1.9",
-    "@portis/web3": "^2.0.0-beta.59",
+    "@portis/web3": "^3.0.0",
     "@stripe/stripe-js": "^1.11.0",
     "authereum": "^0.1.0",
     "axios": "^0.21.1",
